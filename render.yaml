@@ -2,6 +2,7 @@ services:
   # Backend Web Service
   - type: web
     name: nba-stats-backend
+    plan: free
     runtime: python
     rootDir: backend
     buildCommand: pip install -r requirements.txt
@@ -13,6 +14,7 @@ services:
   # Frontend Static Site
   - type: web
     name: nba-stats-frontend
+    plan: free
     runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build

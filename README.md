@@ -22,24 +22,18 @@ npm run dev -- --port 5175
 ```
 The frontend will be available at `http://localhost:5175`.
 
-## Deployment to Render
+## Deployment to Render (Recommended)
 
-This project is structured for easy deployment on [Render](https://render.com/).
+This project includes a `render.yaml` Blueprint, which automates the setup of both services.
 
-### Backend (Web Service)
-1. Create a new **Web Service**.
-2. Connect your GitHub repository.
-3. Root Directory: `backend`
-4. Runtime: `Python 3`
-5. Build Command: `pip install -r requirements.txt`
-6. Start Command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+1.  Log in to [Render](https://dashboard.render.com/).
+2.  Click **New +** and select **Blueprint**.
+3.  Connect your GitHub repository.
+4.  Render will automatically detect the `render.yaml` and configure:
+    *   **Backend:** A Python Web Service.
+    *   **Frontend:** A Static Site with the `VITE_API_URL` pre-linked to the backend.
+5.  Click **Apply**.
 
-### Frontend (Static Site)
-1. Create a new **Static Site**.
-2. Connect your GitHub repository.
-3. Root Directory: `frontend`
-4. Build Command: `npm install && npm run build`
-5. Publish Directory: `dist`
-6. **Environment Variable:** Add `VITE_API_URL` pointing to your deployed Backend URL.
-
-> **Note:** Update `App.jsx` to use `import.meta.env.VITE_API_URL` instead of the hardcoded localhost string.
+### Manual Deployment (Alternative)
+If you prefer to set them up manually:
+... (rest of the existing content)

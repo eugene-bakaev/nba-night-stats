@@ -1,0 +1,25 @@
+services:
+  # Backend Web Service
+  - type: web
+    name: nba-stats-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.0
+
+  # Frontend Static Site
+  - type: static
+    name: nba-stats-frontend
+    runtime: node
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishDir: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: nba-stats-backend
+          property: url

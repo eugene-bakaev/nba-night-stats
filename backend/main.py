@@ -57,7 +57,7 @@ async def get_deltas(force: bool = False):
             if home_abbr and away_abbr:
                 delta = abs(home_score - away_score)
                 deltas.append({
-                    "matchup": f"{home_abbr}-{away_abbr}",
+                    "teams": [home_abbr, away_abbr],
                     "delta": delta
                 })
         

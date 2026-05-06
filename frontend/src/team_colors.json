@@ -1,0 +1,259 @@
+{
+  "ATL": {
+    "colors": [
+      "#C8102E",
+      "#FFC72C",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/ATL.svg"
+  },
+  "BOS": {
+    "colors": [
+      "#007A33",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/BOS.svg"
+  },
+  "BKN": {
+    "colors": [
+      "#000000",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/BKN.svg"
+  },
+  "CHA": {
+    "colors": [
+      "#00778B",
+      "#280071",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/CHA.svg"
+  },
+  "CHI": {
+    "colors": [
+      "#BA0C2F",
+      "#000000",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/CHI.svg"
+  },
+  "CLE": {
+    "colors": [
+      "#6F263D",
+      "#FFB81C",
+      "#041E42",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/CLE.svg"
+  },
+  "DAL": {
+    "colors": [
+      "#0050B5",
+      "#0C2340",
+      "#8D9093",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/DAL.svg"
+  },
+  "DEN": {
+    "colors": [
+      "#0C2340",
+      "#862633",
+      "#FFC72C",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/DEN.svg"
+  },
+  "DET": {
+    "colors": [
+      "#1D428A",
+      "#D50032",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/DET.svg"
+  },
+  "GSW": {
+    "colors": [
+      "#1D4289",
+      "#FFC72C",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/GSW.svg"
+  },
+  "HOU": {
+    "colors": [
+      "#BA0C2F",
+      "#000000",
+      "#9EA2A2",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/HOU.svg"
+  },
+  "IND": {
+    "colors": [
+      "#041E42",
+      "#FFCD00",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/IND.svg"
+  },
+  "LAC": {
+    "colors": [
+      "#0C2340",
+      "#C8102E",
+      "#418FDE",
+      "#FFFFFF",
+      "#9EA2A2"
+    ],
+    "logo": "/logos/LAC.svg"
+  },
+  "LAL": {
+    "colors": [
+      "#330072",
+      "#FFC72C",
+      "#FFFFFF",
+      "#000000"
+    ],
+    "logo": "/logos/LAL.svg"
+  },
+  "MEM": {
+    "colors": [
+      "#0C2340",
+      "#7D9BC1",
+      "#FFC72C",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/MEM.svg"
+  },
+  "MIA": {
+    "colors": [
+      "#000000",
+      "#862633",
+      "#FFA300",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/MIA.svg"
+  },
+  "MIL": {
+    "colors": [
+      "#2C5234",
+      "#DDCBA4",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/MIL.svg"
+  },
+  "MIN": {
+    "colors": [
+      "#0C2340",
+      "#236192",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/MIN.svg"
+  },
+  "NOP": {
+    "colors": [
+      "#0C2340",
+      "#89734C",
+      "#C8102E",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/NOP.svg"
+  },
+  "NYK": {
+    "colors": [
+      "#1D4289",
+      "#FF8200",
+      "#9EA2A2",
+      "#FFFFFF",
+      "#000000"
+    ],
+    "logo": "/logos/NYK.svg"
+  },
+  "OKC": {
+    "colors": [
+      "#0072CE",
+      "#041E42",
+      "#F9423A",
+      "#FFB81C",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/OKC.svg"
+  },
+  "ORL": {
+    "colors": [
+      "#0057B8",
+      "#000000",
+      "#8D9093",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/ORL.svg"
+  },
+  "PHI": {
+    "colors": [
+      "#003DA5",
+      "#D50032",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/PHI.svg"
+  },
+  "PHX": {
+    "colors": [
+      "#201747",
+      "#CB6015",
+      "#A9431E",
+      "#B1B3B3",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/PHX.svg"
+  },
+  "POR": {
+    "colors": [
+      "#000000",
+      "#C8102E",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/POR.svg"
+  },
+  "SAC": {
+    "colors": [
+      "#582C83",
+      "#5B6770",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/SAC.svg"
+  },
+  "SAS": {
+    "colors": [
+      "#000000",
+      "#8D9093",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/SAS.svg"
+  },
+  "TOR": {
+    "colors": [
+      "#BA0C2F",
+      "#000000",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/TOR.svg"
+  },
+  "UTA": {
+    "colors": [
+      "#000000",
+      "#FFFFFF",
+      "#FBE122",
+      "#DBE2E9"
+    ],
+    "logo": "/logos/UTA.svg"
+  },
+  "WAS": {
+    "colors": [
+      "#C8102E",
+      "#0C2340",
+      "#8D9093",
+      "#FFFFFF"
+    ],
+    "logo": "/logos/WAS.svg"
+  }
+}

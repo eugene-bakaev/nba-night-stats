@@ -6,9 +6,15 @@ interface TeamInfo {
   logo: string;
 }
 
+interface PeriodDelta {
+  period: number;
+  delta: number;
+}
+
 interface Game {
   teams: [string, string];
   delta: number;
+  period_deltas: PeriodDelta[];
 }
 
 interface ApiResponse {
@@ -19,7 +25,7 @@ interface ApiResponse {
 }
 
 const getStripedBackground = (colors: string[]) => {
-  if (!colors || colors.length === 0) return '#e2e8f0'; // slate-200 fallback
+  if (!colors || colors.length === 0) return '#e2e8f0'; 
   if (colors.length === 1) return colors[0];
   
   const step = 100 / colors.length;
@@ -35,6 +41,7 @@ function App() {
   const [loading, setLoading] = useState<boolean>(true)
   const [refreshing, setRefreshing] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
 
   const fetchData = async (force = false) => {
     if (force) setRefreshing(true);
@@ -68,6 +75,10 @@ function App() {
     fetchData();
   }, [])
 
+  const toggleExpand = (index: number) => {
+    setExpandedIndex(expandedIndex === index ? null : index);
+  }
+
   const games = data.games || [];
 
   return (
@@ -76,7 +87,7 @@ function App() {
         <header className="flex justify-between items-center mb-16 md:mb-32 bg-white p-5 md:p-8 rounded-[2rem] md:rounded-[3.5rem] shadow-sm border border-slate-200">
           <div>
             <h1 className="text-2xl md:text-4xl font-black tracking-tighter uppercase text-slate-800">NBA <span className="text-blue-600 italic">Night</span></h1>
-            <p className="text-[10px] md:text-[12px] uppercase tracking-[0.4em] md:tracking-[0.5em] font-black text-slate-400 mt-1 md:mt-2">{data.game_date || 'SYNCING...'}</p>
+            <p className="text-[10px] md:text-[12px] uppercase tracking-[0.5em] md:tracking-[0.5em] font-black text-slate-400 mt-1 md:mt-2">{data.game_date || 'SYNCING...'}</p>
           </div>
           <button 
             onClick={() => fetchData(true)}
@@ -113,36 +124,52 @@ function App() {
             const [t1, t2] = game.teams;
             const info1 = (teamData as Record<string, TeamInfo>)[t1];
             const info2 = (teamData as Record<string, TeamInfo>)[t2];
+            const isExpanded = expandedIndex === index;
 
             return (
-              <div key={index} className="relative flex items-center justify-between px-2 md:px-6">
-                
-                {/* Connecting Bars with Stripes */}
-                <div className="absolute inset-x-12 md:inset-x-28 top-1/2 -translate-y-1/2 h-10 md:h-20 flex items-center justify-between z-0">
-                  {/* Left Stripes */}
-                  <div className="w-[40%] h-full rounded-l-full shadow-inner" 
-                       style={{ background: getStripedBackground(info1?.colors) }}></div>
-                  {/* Right Stripes */}
-                  <div className="w-[40%] h-full rounded-r-full shadow-inner" 
-                       style={{ background: getStripedBackground(info2?.colors) }}></div>
+              <div key={index} className="flex flex-col">
+                <div 
+                  onClick={() => toggleExpand(index)}
+                  className="relative flex items-center justify-between px-2 md:px-6 cursor-pointer group"
+                >
+                  {/* Connecting Bars with Stripes */}
+                  <div className="absolute inset-x-12 md:inset-x-28 top-1/2 -translate-y-1/2 h-10 md:h-20 flex items-center justify-between z-0">
+                    <div className="w-[40%] h-full rounded-l-full shadow-inner" 
+                         style={{ background: getStripedBackground(info1?.colors) }}></div>
+                    <div className="w-[40%] h-full rounded-r-full shadow-inner" 
+                         style={{ background: getStripedBackground(info2?.colors) }}></div>
+                  </div>
+
+                  {/* Team 1 Logo */}
+                  <div className="relative z-10 w-20 h-20 md:w-44 md:h-44 bg-white rounded-[2rem] md:rounded-[4rem] border-2 border-slate-200 p-4 md:p-8 flex items-center justify-center shadow-md group-active:scale-95 transition-transform">
+                    <img src={info1?.logo} alt={t1} className="w-12 h-12 md:w-28 md:h-28 object-contain" />
+                  </div>
+
+                  {/* Center DIF Box */}
+                  <div className={`relative z-20 flex flex-col items-center justify-center min-w-[80px] md:min-w-[160px] h-16 md:h-32 rounded-2xl md:rounded-[2.5rem] shadow-2xl border transition-all duration-300 ${isExpanded ? 'bg-blue-600 border-blue-500' : 'bg-slate-900 border-slate-800'}`}>
+                    <span className="text-3xl md:text-6xl font-[1000] tracking-tighter text-white leading-none">{game.delta}</span>
+                    <span className={`text-[8px] md:text-xs font-black uppercase tracking-[0.25em] mt-1 transition-colors ${isExpanded ? 'text-blue-100' : 'text-slate-500'}`}>DIF</span>
+                  </div>
+
+                  {/* Team 2 Logo */}
+                  <div className="relative z-10 w-20 h-20 md:w-44 md:h-44 bg-white rounded-[2rem] md:rounded-[4rem] border-2 border-slate-200 p-4 md:p-8 flex items-center justify-center shadow-md group-active:scale-95 transition-transform">
+                    <img src={info2?.logo} alt={t2} className="w-12 h-12 md:w-28 md:h-28 object-contain" />
+                  </div>
                 </div>
 
-                {/* Team 1 Logo */}
-                <div className="relative z-10 w-20 h-20 md:w-44 md:h-44 bg-white rounded-[2rem] md:rounded-[4rem] border-2 border-slate-200 p-4 md:p-8 flex items-center justify-center shadow-md">
-                  <img src={info1?.logo} alt={t1} className="w-12 h-12 md:w-28 md:h-28 object-contain" />
+                {/* Sliding Quarter Panel */}
+                <div className={`grid transition-all duration-500 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100 mt-8' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
+                  <div className="overflow-hidden">
+                    <div className="flex justify-center space-x-2 md:space-x-4 px-4 pb-4">
+                      {game.period_deltas.map((p) => (
+                        <div key={p.period} className="flex flex-col items-center bg-white border border-slate-200 rounded-2xl p-3 md:p-5 shadow-sm min-w-[60px] md:min-w-[100px]">
+                          <span className="text-xs md:text-sm font-black text-slate-400 uppercase tracking-widest">Q{p.period}</span>
+                          <span className="text-xl md:text-3xl font-black text-slate-800 tabular-nums">{p.delta}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-
-                {/* Center DIF Box */}
-                <div className="relative z-20 flex flex-col items-center justify-center min-w-[80px] md:min-w-[160px] h-16 md:h-32 bg-slate-900 rounded-2xl md:rounded-[2.5rem] shadow-2xl border border-slate-800">
-                  <span className="text-3xl md:text-6xl font-[1000] tracking-tighter text-white leading-none">{game.delta}</span>
-                  <span className="text-[8px] md:text-xs font-black uppercase tracking-[0.25em] md:tracking-[0.4em] text-slate-500 mt-1">DIF</span>
-                </div>
-
-                {/* Team 2 Logo */}
-                <div className="relative z-10 w-20 h-20 md:w-44 md:h-44 bg-white rounded-[2rem] md:rounded-[4rem] border-2 border-slate-200 p-4 md:p-8 flex items-center justify-center shadow-md">
-                  <img src={info2?.logo} alt={t2} className="w-12 h-12 md:w-28 md:h-28 object-contain" />
-                </div>
-
               </div>
             );
           })}

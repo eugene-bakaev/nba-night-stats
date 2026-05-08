@@ -10,7 +10,7 @@ app = FastAPI()
 # Enable CORS for the React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # For development; restrict in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -28,12 +28,13 @@ async def get_deltas(force: bool = False):
         try:
             with open(CACHE_FILE, "r") as f:
                 cache = json.load(f)
-                # Ensure the cache structure is the new format
+                # Ensure the cache structure is the new format and matches the date
                 if isinstance(cache, dict) and cache.get("game_date") == yesterday:
-                    print(f"Serving from cache for date: {yesterday}")
-                    return cache
-                # If it's the old list format, force a refresh
-        except (json.JSONDecodeError, IOError):
+                    # Check if cache contains period_deltas (v2 of our API response)
+                    if len(cache.get("games", [])) > 0 and "period_deltas" in cache["games"][0]:
+                        print(f"Serving from cache for date: {yesterday}")
+                        return cache
+        except (json.JSONDecodeError, IOError, KeyError):
             pass
     
     # Fetch from NBA API
@@ -55,10 +56,26 @@ async def get_deltas(force: bool = False):
             away_score = away_team.get('score', 0)
             
             if home_abbr and away_abbr:
-                delta = abs(home_score - away_score)
+                # Calculate cumulative period deltas
+                home_periods = home_team.get('periods', [])
+                away_periods = away_team.get('periods', [])
+                
+                period_deltas = []
+                home_running = 0
+                away_running = 0
+                
+                for hp, ap in zip(home_periods, away_periods):
+                    home_running += hp.get('score', 0)
+                    away_running += ap.get('score', 0)
+                    period_deltas.append({
+                        "period": hp.get('period'),
+                        "delta": abs(home_running - away_running)
+                    })
+
                 deltas.append({
                     "teams": [home_abbr, away_abbr],
-                    "delta": delta
+                    "delta": abs(home_score - away_score),
+                    "period_deltas": period_deltas
                 })
         
         response_data = {
@@ -75,7 +92,6 @@ async def get_deltas(force: bool = False):
 
     except Exception as e:
         print(f"Error fetching NBA data: {e}")
-        # Return structured error so frontend doesn't crash
         return {
             "game_date": yesterday,
             "fetched_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),

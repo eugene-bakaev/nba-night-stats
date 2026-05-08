@@ -1,11 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timedelta
-import json
-import os
-from nba_api.stats.endpoints import scoreboardv3
+from typing import Optional
 
-app = FastAPI()
+from models import GameResponse
+from services.cache import read_cache, write_cache
+from services.nba import fetch_nba_deltas
+
+app = FastAPI(title="NBA Night Stats API")
 
 # Enable CORS for the React frontend
 app.add_middleware(
@@ -16,88 +18,45 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-CACHE_FILE = "cache.json"
-
-@app.get("/api/deltas")
+@app.get("/api/deltas", response_model=GameResponse)
 async def get_deltas(force: bool = False):
-    # Calculate yesterday's date in YYYY-MM-DD format
+    """
+    Fetches NBA game score deltas for 'yesterday'.
+    Uses local caching by default.
+    """
     yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
     
-    # Check cache first (unless force refresh is requested)
-    if not force and os.path.exists(CACHE_FILE):
-        try:
-            with open(CACHE_FILE, "r") as f:
-                cache = json.load(f)
-                # Ensure the cache structure is the new format and matches the date
-                if isinstance(cache, dict) and cache.get("game_date") == yesterday:
-                    # Check if cache contains period_deltas (v2 of our API response)
-                    if len(cache.get("games", [])) > 0 and "period_deltas" in cache["games"][0]:
-                        print(f"Serving from cache for date: {yesterday}")
-                        return cache
-        except (json.JSONDecodeError, IOError, KeyError):
-            pass
+    # 1. Try to serve from cache
+    if not force:
+        cached_data = read_cache(yesterday)
+        if cached_data:
+            print(f"Serving from cache for date: {yesterday}")
+            return GameResponse(**cached_data)
     
-    # Fetch from NBA API
+    # 2. Fetch fresh data from NBA API
     print(f"Fetching from NBA API for date: {yesterday} (Force: {force})")
     try:
-        sb = scoreboardv3.ScoreboardV3(game_date=yesterday)
-        data = sb.get_dict()
-        
-        games_list = data.get('scoreboard', {}).get('games', [])
-        
-        deltas = []
-        for game in games_list:
-            home_team = game.get('homeTeam', {})
-            away_team = game.get('awayTeam', {})
-            
-            home_abbr = home_team.get('teamTricode')
-            away_abbr = away_team.get('teamTricode')
-            home_score = home_team.get('score', 0)
-            away_score = away_team.get('score', 0)
-            
-            if home_abbr and away_abbr:
-                # Calculate cumulative period deltas
-                home_periods = home_team.get('periods', [])
-                away_periods = away_team.get('periods', [])
-                
-                period_deltas = []
-                home_running = 0
-                away_running = 0
-                
-                for hp, ap in zip(home_periods, away_periods):
-                    home_running += hp.get('score', 0)
-                    away_running += ap.get('score', 0)
-                    period_deltas.append({
-                        "period": hp.get('period'),
-                        "delta": abs(home_running - away_running)
-                    })
-
-                deltas.append({
-                    "teams": [home_abbr, away_abbr],
-                    "delta": abs(home_score - away_score),
-                    "period_deltas": period_deltas
-                })
+        games = fetch_nba_deltas(yesterday)
         
         response_data = {
             "game_date": yesterday,
             "fetched_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            "games": deltas
+            "games": games
         }
         
-        # Save to cache
-        with open(CACHE_FILE, "w") as f:
-            json.dump(response_data, f)
+        # 3. Update cache
+        write_cache(response_data)
             
-        return response_data
+        return GameResponse(**response_data)
 
     except Exception as e:
         print(f"Error fetching NBA data: {e}")
-        return {
-            "game_date": yesterday,
-            "fetched_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            "games": [],
-            "error": str(e)
-        }
+        return GameResponse(
+            game_date=yesterday,
+            fetched_at=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            games=[],
+            error=str(e)
+        )
 
 if __name__ == "__main__":
     import uvicorn

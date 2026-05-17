@@ -1,5 +1,6 @@
 from nba_api.stats.endpoints import scoreboardv3
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
+from datetime import datetime, timedelta
 
 def fetch_nba_deltas(game_date: str) -> List[Dict[str, Any]]:
     """Fetches and processes NBA game data for a specific date."""
@@ -43,3 +44,39 @@ def fetch_nba_deltas(game_date: str) -> List[Dict[str, Any]]:
             })
             
     return processed_games
+
+def fetch_upcoming_games(start_date_str: str) -> tuple[Optional[str], List[Dict[str, Any]]]:
+    """Scans forward from start_date to find up to 3 next games within a 5-day window."""
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+    all_upcoming = []
+    first_date = None
+    
+    for i in range(5): # Scan up to 5 days
+        current_date_str = (start_date + timedelta(days=i)).strftime('%Y-%m-%d')
+        sb = scoreboardv3.ScoreboardV3(game_date=current_date_str)
+        data = sb.get_dict()
+        games_list = data.get('scoreboard', {}).get('games', [])
+        
+        if games_list:
+            if not first_date:
+                first_date = current_date_str
+                
+            for g in games_list:
+                home = g.get('homeTeam', {})
+                away = g.get('awayTeam', {})
+                
+                # Handle TBD teams
+                home_abbr = home.get('teamTricode') or "TBD"
+                away_abbr = away.get('teamTricode') or "TBD"
+                
+                all_upcoming.append({
+                    "teams": [away_abbr, home_abbr],
+                    "time": g.get('gameStatusText') or "TBD",
+                    "game_date": current_date_str,
+                    "status": "Scheduled"
+                })
+                
+                if len(all_upcoming) >= 3:
+                    return first_date, all_upcoming
+            
+    return first_date, all_upcoming

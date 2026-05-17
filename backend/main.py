@@ -5,7 +5,7 @@ from typing import Optional
 
 from models import GameResponse
 from services.cache import read_cache, write_cache
-from services.nba import fetch_nba_deltas
+from services.nba import fetch_nba_deltas, fetch_upcoming_games
 
 app = FastAPI(title="NBA Night Stats API")
 
@@ -38,10 +38,16 @@ async def get_deltas(force: bool = False):
     try:
         games = fetch_nba_deltas(yesterday)
         
+        # Also fetch upcoming games starting from today
+        today = datetime.now().strftime('%Y-%m-%d')
+        up_date, up_games = fetch_upcoming_games(today)
+        
         response_data = {
             "game_date": yesterday,
             "fetched_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            "games": games
+            "games": games,
+            "upcoming_date": up_date,
+            "upcoming_games": up_games
         }
         
         # 3. Update cache

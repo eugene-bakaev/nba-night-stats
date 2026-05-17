@@ -17,12 +17,88 @@ interface Game {
   period_deltas: PeriodDelta[];
 }
 
+interface UpcomingGame {
+  teams: string[];
+  time: string;
+  game_date: string;
+  status: string;
+}
+
 interface ApiResponse {
   games: Game[];
   game_date: string;
   fetched_at: string;
+  upcoming_date?: string;
+  upcoming_games: UpcomingGame[];
   error?: string;
 }
+
+const UpcomingSection = ({ games }: { games: UpcomingGame[] }) => {
+  if (!games || games.length === 0) return null;
+
+  const formatDate = (dateStr: string) => {
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    } catch (e) {
+      return dateStr;
+    }
+  };
+
+  // Group games by date
+  const grouped = games.reduce((acc, game) => {
+    if (!acc[game.game_date]) acc[game.game_date] = [];
+    acc[game.game_date].push(game);
+    return acc;
+  }, {} as Record<string, UpcomingGame[]>);
+
+  return (
+    <div className="mt-20 md:mt-32">
+      <div className="flex items-center space-x-4 mb-12 opacity-60">
+        <div className="h-px flex-1 bg-slate-300"></div>
+        <h2 className="text-[10px] md:text-xs font-black uppercase tracking-[0.4em] text-slate-500 whitespace-nowrap">
+          Next Up
+        </h2>
+        <div className="h-px flex-1 bg-slate-300"></div>
+      </div>
+
+      <div className="space-y-12">
+        {Object.entries(grouped).map(([date, dayGames]) => (
+          <div key={date} className="space-y-4">
+            <div className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 ml-2">
+              {formatDate(date)}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {dayGames.map((game, idx) => (
+                <div key={idx} className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-4 md:p-6 border border-slate-200 shadow-sm flex items-center justify-between group hover:border-blue-200 transition-all cursor-default">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center -space-x-2">
+                      {game.teams.map((team, tIdx) => (
+                        <div key={tIdx} className={`w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-white overflow-hidden flex items-center justify-center bg-slate-50 shadow-sm ${tIdx === 1 ? 'z-10' : 'z-0'}`}>
+                          {team !== "TBD" ? (
+                            <img src={`/logos/${team}.svg`} className="w-full h-full object-contain p-1" alt={team} />
+                          ) : (
+                            <span className="text-[8px] font-black text-slate-300">TBD</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="text-[11px] md:text-sm font-black text-slate-700 uppercase tracking-tight">
+                      {game.teams[0]} <span className="text-slate-400 mx-1">@</span> {game.teams[1]}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[10px] md:text-xs font-black text-blue-600 uppercase tracking-wider">{game.time}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const getStripedBackground = (colors: string[]) => {
   if (!colors || colors.length === 0) return '#e2e8f0'; 
@@ -61,7 +137,9 @@ function App() {
       setData({
         games: result.games || [],
         game_date: result.game_date || '',
-        fetched_at: result.fetched_at || ''
+        fetched_at: result.fetched_at || '',
+        upcoming_date: result.upcoming_date,
+        upcoming_games: result.upcoming_games || []
       });
     } catch (err: any) {
       setError(err.message);
@@ -174,6 +252,10 @@ function App() {
             );
           })}
         </div>
+
+        {!loading && !refreshing && (
+          <UpcomingSection games={data.upcoming_games} />
+        )}
 
         <footer className="mt-20 md:mt-48 pb-16 md:pb-32 flex flex-col items-center space-y-6 md:space-y-10 opacity-30">
           <div className="h-[2px] md:h-[3px] w-12 md:w-16 bg-slate-300 rounded-full"></div>

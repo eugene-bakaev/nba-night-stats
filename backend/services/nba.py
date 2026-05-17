@@ -18,7 +18,8 @@ def fetch_nba_deltas(game_date: str) -> List[Dict[str, Any]]:
         home_score = home_team.get('score', 0)
         away_score = away_team.get('score', 0)
         
-        if home_abbr and away_abbr:
+        # Only process games that have actually been played (non-zero scores)
+        if home_abbr and away_abbr and (home_score > 0 or away_score > 0):
             # Calculate cumulative period deltas
             home_periods = home_team.get('periods', [])
             away_periods = away_team.get('periods', [])

@@ -17,9 +17,9 @@ def read_cache(target_date: str) -> Optional[Dict[str, Any]]:
             if not isinstance(cache, dict) or cache.get("game_date") != target_date:
                 return None
                 
-            # Version 2 check (ensure period_deltas exist)
+            # Version 2 check (ensure period_deltas exist if games are present)
             games = cache.get("games", [])
-            if not games or "period_deltas" not in games[0]:
+            if games and "period_deltas" not in games[0]:
                 return None
                 
             return cache
